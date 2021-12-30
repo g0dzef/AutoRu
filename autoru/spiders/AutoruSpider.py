@@ -27,6 +27,13 @@ class TestSpider(CrawlSpider):
     )
     counter = 0
 
+    def get_sale_data_att(self, response):
+        sale_data_attributes = response.xpath(
+            '//*[@id="sale-data-attributes"]/@data-bem').get()
+        sale_data_attributes = json.loads(
+            sale_data_attributes.replace("'", '"'))
+        return sale_data_attributes
+
     def parse_item(self, response):
         self.counter += 1
         print(f'{self.counter} processing: ' + response.url)
@@ -36,19 +43,15 @@ class TestSpider(CrawlSpider):
             title = response.xpath(
                 '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[2]/div[1]/div[1]/h1/text()').get()
 
-            sale_data_attributes = response.xpath(
-                '//*[@id="sale-data-attributes"]/@data-bem').get()
-            sale_data_attributes = json.loads(
-                sale_data_attributes.replace("'", '"'))
+            sale_data_attributes = self.get_sale_data_att(response)
+
             mileage = sale_data_attributes['sale-data-attributes']['km-age']
             model_name = sale_data_attributes['sale-data-attributes']['model']
             brand = sale_data_attributes['sale-data-attributes']['markName']
-            segment = sale_data_attributes['sale-data-attributes']['segment']
-            transmission = sale_data_attributes['sale-data-attributes']['transmission']
             year = sale_data_attributes['sale-data-attributes']['year']
-            engine_type = sale_data_attributes['sale-data-attributes']['engine-type']
             image_url = sale_data_attributes['sale-data-attributes']['image']
             price = sale_data_attributes['sale-data-attributes']['price']
+            new_car = 0
 
             equipment = response.xpath(
                 '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[6]/span[1]/text()').get()
@@ -91,34 +94,55 @@ class TestSpider(CrawlSpider):
                 #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[13]/span[2]/text()').get()
                 # exchange = response.xpath(
                 #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[14]/span[2]/text()').get()
+            bodyType = response.xpath(
+                '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[3]/span[2]/a/text()').get()
+            color = response.xpath(
+                '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[4]/span[2]/a/text()').get()
 
-            yield scrapy.Request(
-                url=response.css(
-                    'a.Link.SpoilerLink.CardCatalogLink.SpoilerLink_type_default::attr(href)').get(),
-                callback=self.parse2,
-                meta={'sell_id': response.css(
-                    'div.CardHead__infoItem.CardHead__id::text').get().replace('№ ', ''),
-                      'bodyType': response.xpath(
-                          '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[3]/span[2]/a/text()').get(),
-                      'brand': brand,
-                      'car_url': response.url,
-                      'color': response.xpath(
-                          '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[4]/span[2]/a/text()').get(),
-                      'description': response.css('div.CardDescriptionHTML *::text').getall(),
-                      'image': image_url,
-                      'mileage': mileage,
-                      'modelDate': year,
-                      'model_name': model_name,
-                      'owners': owners,
-                      'licence': licence,
-                      'wheel': wheel,
-                      'price': price,
-                      # 'status': status,
-                      # 'customs': customs,
-                      # 'exchange': exchange,
-                      })
         else:
-            pass
+            sale_data_attributes = self.get_sale_data_att(response)
+
+            mileage = sale_data_attributes['sale-data-attributes']['km-age']
+            model_name = sale_data_attributes['sale-data-attributes']['model']
+            brand = sale_data_attributes['sale-data-attributes']['markName']
+            year = sale_data_attributes['sale-data-attributes']['year']
+            image_url = sale_data_attributes['sale-data-attributes']['image']
+            price = sale_data_attributes['sale-data-attributes']['price']
+
+            owners = 0
+            new_car = 1
+            licence = 'информация отсутствует'
+            wheel = 'информация отсутствует'
+
+            bodyType = response.xpath(
+                '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[5]/div[1]/div[2]/ul/li[1]/div/a/text()').get()
+            color = response.xpath(
+                '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[5]/div[1]/div[2]/ul/li[7]/div/a/text()').get()
+
+        yield scrapy.Request(
+            url=response.css(
+                'a.Link.SpoilerLink.CardCatalogLink.SpoilerLink_type_default::attr(href)').get(),
+            callback=self.parse2,
+            meta={'sell_id': response.css(
+                'div.CardHead__infoItem.CardHead__id::text').get().replace('№ ', ''),
+                  'bodyType': bodyType,
+                  'brand': brand,
+                  'car_url': response.url,
+                  'color': color,
+                  'description': response.css('div.CardDescriptionHTML *::text').getall(),
+                  'image': image_url,
+                  'mileage': mileage,
+                  'modelDate': year,
+                  'model_name': model_name,
+                  'owners': owners,
+                  'licence': licence,
+                  'wheel': wheel,
+                  'price': price,
+                  'new_car': new_car,
+                  # 'status': status,
+                  # 'customs': customs,
+                  # 'exchange': exchange,
+                  })
 
     def parse2(self, response):
 
@@ -156,4 +180,5 @@ class TestSpider(CrawlSpider):
             'consumption': response.xpath(
                 '/html/body/div[9]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]/div[2]/dl/dd[3]/text()').get(),
             'price': response.meta['price'],
+            'new_car': response.meta['new_car'],
         }
