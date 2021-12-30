@@ -48,9 +48,15 @@ class TestSpider(CrawlSpider):
             year = sale_data_attributes['sale-data-attributes']['year']
             engine_type = sale_data_attributes['sale-data-attributes']['engine-type']
             image_url = sale_data_attributes['sale-data-attributes']['image']
+            price = sale_data_attributes['sale-data-attributes']['price']
 
             equipment = response.xpath(
                 '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[6]/span[1]/text()').get()
+            power_reserve = response.xpath(
+                '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[7]/span[1]/text()').get()
+
+            # price = response.xpath(
+            #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[2]/div[1]/div[2]/div/div[1]/span/span/text()').get()
 
             if equipment == 'Комплектация':
                 owners = response.xpath(
@@ -65,6 +71,13 @@ class TestSpider(CrawlSpider):
                 #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[14]/span[2]/text()').get()
                 # exchange = response.xpath(
                 #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[15]/span[2]/text()').get()
+            elif power_reserve == 'Запас хода':
+                owners = response.xpath(
+                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[13]/span[2]/text()').get()
+                licence = response.xpath(
+                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[14]/span[2]/text()').get()
+                wheel = response.xpath(
+                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[11]/span[2]/text()').get()
             else:
                 owners = response.xpath(
                     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[11]/span[2]/text()').get()
@@ -92,13 +105,14 @@ class TestSpider(CrawlSpider):
                       'color': response.xpath(
                           '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[4]/span[2]/a/text()').get(),
                       'description': response.css('div.CardDescriptionHTML *::text').getall(),
-                      'image': 'https:' + response.css('img.ImageGalleryDesktop__image::attr(src)').get(),
+                      'image': image_url,
                       'mileage': mileage,
                       'modelDate': year,
                       'model_name': model_name,
                       'owners': owners,
                       'licence': licence,
                       'wheel': wheel,
+                      'price': price,
                       # 'status': status,
                       # 'customs': customs,
                       # 'exchange': exchange,
@@ -141,4 +155,5 @@ class TestSpider(CrawlSpider):
             # 'exchange': response.meta['exchange'],
             'consumption': response.xpath(
                 '/html/body/div[9]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]/div[2]/dl/dd[3]/text()').get(),
+            'price': response.meta['price'],
         }
