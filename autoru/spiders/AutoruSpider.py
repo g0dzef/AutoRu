@@ -49,36 +49,60 @@ class TestSpider(CrawlSpider):
             engine_type = sale_data_attributes['sale-data-attributes']['engine-type']
             image_url = sale_data_attributes['sale-data-attributes']['image']
 
+            equipment = response.xpath(
+                '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[6]/span[1]/text()').get()
+
+            if equipment == 'Комплектация':
+                owners = response.xpath(
+                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[12]/span[2]/text()').get()
+                licence = response.xpath(
+                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[13]/span[2]/text()').get()
+                wheel = response.xpath(
+                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[10]/span[2]/text()').get()
+                # status = response.xpath(
+                #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[11]/span[2]/text()').get()
+                # customs = response.xpath(
+                #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[14]/span[2]/text()').get()
+                # exchange = response.xpath(
+                #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[15]/span[2]/text()').get()
+            else:
+                owners = response.xpath(
+                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[11]/span[2]/text()').get()
+                licence = response.xpath(
+                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[12]/span[2]/text()').get()
+                wheel = response.xpath(
+                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[9]/span[2]/text()').get()
+                # status = response.xpath(
+                #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[10]/span[2]/text()').get()
+                # customs = response.xpath(
+                #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[13]/span[2]/text()').get()
+                # exchange = response.xpath(
+                #     '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[14]/span[2]/text()').get()
+
             yield scrapy.Request(
                 url=response.css(
                     'a.Link.SpoilerLink.CardCatalogLink.SpoilerLink_type_default::attr(href)').get(),
                 callback=self.parse2,
                 meta={'sell_id': response.css(
                     'div.CardHead__infoItem.CardHead__id::text').get().replace('№ ', ''),
-                    'bodyType': response.xpath(
-                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[3]/span[2]/a/text()').get(),
-                    'brand': brand,
-                    'car_url': response.url,
-                    'color': response.xpath(
-                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[4]/span[2]/a/text()').get(),
-                    'description': response.css('div.CardDescriptionHTML *::text').getall(),
-                    'image': 'https:' + response.css('img.ImageGalleryDesktop__image::attr(src)').get(),
-                    'mileage': mileage,
-                    'modelDate': year,
-                    'model_name': model_name,
-                    'owners': response.xpath(
-                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[12]/span[2]/text()').get(),
-                    'licence': response.xpath(
-                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[13]/span[2]/text()').get(),
-                    'wheel': response.xpath(
-                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[10]/span[2]/text()').get(),
-                    'status': response.xpath(
-                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[11]/span[2]/text()').get(),
-                    'customs': response.xpath(
-                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[14]/span[2]/text()').get(),
-                    'exchange': response.xpath(
-                    '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[15]/span[2]/text()').get(),
-                })
+                      'bodyType': response.xpath(
+                          '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[3]/span[2]/a/text()').get(),
+                      'brand': brand,
+                      'car_url': response.url,
+                      'color': response.xpath(
+                          '//*[@id="app"]/div/div[2]/div[3]/div[2]/div/div[2]/div/div[6]/div[1]/ul/li[4]/span[2]/a/text()').get(),
+                      'description': response.css('div.CardDescriptionHTML *::text').getall(),
+                      'image': 'https:' + response.css('img.ImageGalleryDesktop__image::attr(src)').get(),
+                      'mileage': mileage,
+                      'modelDate': year,
+                      'model_name': model_name,
+                      'owners': owners,
+                      'licence': licence,
+                      'wheel': wheel,
+                      # 'status': status,
+                      # 'customs': customs,
+                      # 'exchange': exchange,
+                      })
         else:
             pass
 
@@ -102,7 +126,7 @@ class TestSpider(CrawlSpider):
                 '/html/body/div[9]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[3]/div[1]/div[1]/dl/dd[3]/text()').get(),
             'number_of_seats': response.xpath(
                 '/html/body/div[9]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[3]/div[1]/div[1]/dl/dd[4]/text()').get(),
-            'parsing_unixtime': str(time.time),
+            # 'parsing_unixtime': str(time.time),
             'vehicle_transmission': response.xpath(
                 '/html/body/div[9]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]/div[1]/dl/dd[3]/text()').get(),
             'vendor': response.xpath(
@@ -112,9 +136,9 @@ class TestSpider(CrawlSpider):
             'type_of_drive': response.xpath(
                 '/html/body/div[9]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]/div[2]/dl/dd[2]/text()').get(),
             'wheel': response.meta['wheel'],
-            'status': response.meta['status'],
-            'customs': response.meta['customs'],
-            'exchange': response.meta['exchange'],
+            # 'status': response.meta['status'],
+            # 'customs': response.meta['customs'],
+            # 'exchange': response.meta['exchange'],
             'consumption': response.xpath(
                 '/html/body/div[9]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]/div[2]/dl/dd[3]/text()').get(),
         }
